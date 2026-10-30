@@ -34,7 +34,9 @@ The service worker caches only the static same-origin app shell. The app makes n
 
 ## Deployment
 
-The project is static and can be hosted by any HTTPS static-file host. A deployment should configure a restrictive Content Security Policy, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and a `Permissions-Policy` that disables unused browser features. Review `docs/security-and-privacy.md` before exposing it publicly. Hosting cost and free-tier limits depend on the selected provider and may change.
+**Live site:** [Range OS](https://thanmay1609.github.io/Aim-Trainer/)
+
+The app includes a restrictive Content Security Policy and referrer policy in its HTML. For hosts that support response-header configuration, also set `X-Content-Type-Options: nosniff` and a `Permissions-Policy` that disables unused browser features. HTML policies cannot replace every response header; review `docs/security-and-privacy.md` before changing hosts. Hosting cost and free-tier limits depend on the selected provider and may change.
 
 The repository is configured to publish through GitHub Pages. Pushes to `main` publish the static app files automatically. The market audit and project documentation stay in the source repository and are not included in the public site artifact.
 

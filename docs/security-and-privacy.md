@@ -19,7 +19,7 @@ The app has no account, application API, analytics, or third-party requests. A h
 
 ## Deployment checklist
 
-Serve over HTTPS. Configure headers at the hosting layer; a static HTML meta policy cannot replace every security header:
+Serve over HTTPS. The document includes a restrictive Content Security Policy and referrer policy. A static HTML meta policy cannot replace every security header, so use a host that supports response-header configuration for the remaining controls:
 
 - `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; form-action 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`
 - `X-Content-Type-Options: nosniff`
