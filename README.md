@@ -36,6 +36,8 @@ The service worker caches only the static same-origin app shell. The app makes n
 
 The project is static and can be hosted by any HTTPS static-file host. A deployment should configure a restrictive Content Security Policy, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, and a `Permissions-Policy` that disables unused browser features. Review `docs/security-and-privacy.md` before exposing it publicly. Hosting cost and free-tier limits depend on the selected provider and may change.
 
+The repository includes a GitHub Pages workflow. For a public repository on GitHub Free, choose **Settings → Pages → Build and deployment → Source → GitHub Actions** once. Pushes to `main` then publish the static app files automatically. The market audit and project documentation stay in the source repository and are not included in the public site artifact.
+
 ## Project notes
 
 - `docs/market-audit.md` records the five-product public-source review and its coverage limits.
