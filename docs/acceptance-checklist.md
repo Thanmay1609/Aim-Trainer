@@ -9,12 +9,12 @@
 - [x] Static PWA shell and offline fallback are included.
 - [x] Keyboard aiming is available in addition to mouse and touch.
 - [x] GitHub Pages is configured to publish the static site through Actions.
+- [x] Initial Pages workflow completed; live page, stylesheet, manifest, service worker, modules, and icon returned HTTP 200 on 30 October 2026.
 
 ## Verification performed
 
 - [x] Core, storage, and static-shell tests passed earlier in implementation (12 tests). Final app module syntax checks also passed after the accessibility and trend-chart changes; the full test suite was not rerun after those last UI updates.
 - [ ] Local HTTP launch and browser interaction review. The Python server started, but this sandbox denied local socket access and the Windows browser helper stopped before navigating to localhost.
-- [ ] Confirm the first GitHub Pages workflow run and public site response after Pages was enabled.
 - [ ] Mouse / touch / keyboard manual matrix (requires interactive browser/device checks).
 - [ ] Offline reload and service-worker update behavior (requires browser with service-worker support).
 - [ ] Real-device frame pacing and screen-reader review (not verified in the current local environment).
