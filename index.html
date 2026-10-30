@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101516">
+    <meta name="description" content="A free, focused aim trainer with clear drills and private local progress.">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>Range OS — Aim training, made clear</title>
+    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./src/app.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to training</a>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#view-training" aria-label="Range OS home" data-nav-home>
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="brand-word">RANGE<span>OS</span></span>
+        </a>
+        <nav class="primary-nav" aria-label="Main navigation">
+          <button class="nav-button is-active" type="button" data-view-button="training" aria-pressed="true">Train</button>
+          <button class="nav-button" type="button" data-view-button="progress" aria-pressed="false">Progress</button>
+          <button class="nav-button" type="button" data-view-button="about" aria-pressed="false">About</button>
+        </nav>
+        <div class="topbar-meta"><span class="local-dot" aria-hidden="true"></span><span>Saved on this device</span></div>
+      </header>
+
+      <main id="main-content">
+        <section id="view-training" class="view" aria-labelledby="page-title">
+          <div class="page-heading">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-line"></span> PERSONAL PRACTICE RANGE</p>
+              <h1 id="page-title" tabindex="-1">Make every rep <span>count.</span></h1>
+              <p class="page-lede">Short, focused drills. Clear feedback. Your progress stays yours.</p>
+            </div>
+            <div class="heading-stat" aria-label="Your session count">
+              <span class="heading-stat-value" id="header-session-count">00</span>
+              <span class="heading-stat-label">SESSIONS</span>
+            </div>
+          </div>
+
+          <div class="training-layout">
+            <aside class="mode-rail" aria-labelledby="mode-heading">
+              <div class="rail-heading">
+                <div><p class="eyebrow">01 / SELECT</p><h2 id="mode-heading">Choose a drill</h2></div>
+                <span class="rail-marker" aria-hidden="true">A</span>
+              </div>
+              <div class="mode-list" role="group" aria-label="Training drill">
+                <button class="mode-card is-selected" type="button" data-mode="flick" aria-pressed="true">
+                  <span class="mode-icon mode-icon-flick" aria-hidden="true"><i></i></span>
+                  <span class="mode-copy"><span class="mode-name">Flick / precision</span><span class="mode-description">Snap to one target at a time.</span></span>
+                  <span class="mode-arrow" aria-hidden="true">↗</span>
+                </button>
+                <button class="mode-card" type="button" data-mode="switch" aria-pressed="false">
+                  <span class="mode-icon mode-icon-switch" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="mode-copy"><span class="mode-name">Target switching</span><span class="mode-description">Move through three targets.</span></span>
+                  <span class="mode-arrow" aria-hidden="true">↗</span>
+                </button>
+                <button class="mode-card" type="button" data-mode="tracking" aria-pressed="false">
+                  <span class="mode-icon mode-icon-track" aria-hidden="true"><i></i></span>
+                  <span class="mode-copy"><span class="mode-name">Tracking</span><span class="mode-description">Stay on a moving target.</span></span>
+                  <span class="mode-arrow" aria-hidden="true">↗</span>
+                </button>
+              </div>
+
+              <div class="rail-divider"></div>
+              <div class="rail-heading compact">
+                <div><p class="eyebrow">02 / SET UP</p><h2>Session length</h2></div>
+              </div>
+              <div class="segmented-control" role="group" aria-label="Session length">
+                <button type="button" data-duration="30" aria-pressed="true">30 sec</button>
+                <button type="button" data-duration="60" aria-pressed="false">60 sec</button>
+                <button type="button" data-duration="90" aria-pressed="false">90 sec</button>
+              </div>
+              <label class="field-label" for="target-size">Target size</label>
+              <select id="target-size" class="select-control">
+                <option value="large">Large · relaxed</option>
+                <option value="medium" selected>Medium · standard</option>
+                <option value="small">Small · precise</option>
+              </select>
+              <p class="rail-note">Touch play automatically uses a comfortable target size.</p>
+
+              <div class="rail-tip">
+                <span class="tip-icon" aria-hidden="true">✳</span>
+                <p><strong>Stay relaxed.</strong><br>Accuracy first; speed follows.</p>
+              </div>
+            </aside>
+
+            <section class="range-column" aria-label="Practice area">
+              <div class="range-toolbar">
+                <div class="range-title-wrap">
+                  <span class="live-indicator" aria-hidden="true"></span>
+                  <div><p class="eyebrow" id="mode-kicker">FLICK / PRECISION</p><h2 id="mode-title">Single target</h2></div>
+                </div>
+                <div class="range-toolbar-right"><span class="input-hint" id="input-hint">MOUSE READY</span><span class="key-hint"><kbd>Esc</kbd> pause</span></div>
+              </div>
+
+              <p class="range-instructions" id="mode-instructions">Click the target as accurately as you can. Keyboard: focus the arena, move with arrow keys, and press Space to score.</p>
+              <div class="arena-frame" id="arena-frame">
+                <div class="arena-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                <div class="arena-label arena-label-top" aria-hidden="true"><span>RANGE / 01</span><span id="arena-mode-label">STATIC ACQUISITION</span></div>
+                <canvas id="arena" width="1200" height="680" tabindex="0" aria-label="Aim training arena. Start a session, then click or touch the highlighted target. Keyboard users can focus this arena, move with arrow keys, and press Space.">
+                  Your browser does not support Canvas. Use the mode instructions and controls above to navigate the trainer.
+                </canvas>
+                <div class="arena-label arena-label-bottom" aria-hidden="true"><span id="arena-coordinate">X 00.0 / Y 00.0</span><span>LOCAL SIMULATION</span></div>
+                <div id="arena-empty" class="arena-empty">
+                  <span class="empty-signal" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="empty-title">Range is standing by</span>
+                  <span class="empty-copy">Choose a drill and start when you’re ready.</span>
+                </div>
+                <div id="countdown-layer" class="countdown-layer" hidden>
+                  <span class="countdown-caption">GET READY</span><span id="countdown-number" class="countdown-number">3</span>
+                </div>
+                <div id="pause-layer" class="pause-layer" hidden><span>SESSION PAUSED</span><span>Resume when you’re ready</span></div>
+              </div>
+
+              <div class="session-bar">
+                <div class="timer-display" aria-label="Time remaining"><span class="timer-label">TIME</span><span id="timer-value">00:30</span></div>
+                <div class="session-actions">
+                  <button id="start-button" class="button button-primary" type="button"><span class="button-play" aria-hidden="true">▶</span> Start session</button>
+                  <button id="pause-button" class="button button-secondary" type="button" disabled>Pause</button>
+                  <button id="end-button" class="button button-quiet" type="button" disabled>End early</button>
+                </div>
+                <div class="session-state"><span class="state-led" id="state-led" aria-hidden="true"></span><span id="session-state-label">READY</span></div>
+              </div>
+
+              <div class="live-stats" aria-label="Live session results">
+                <div class="live-stat"><span class="live-stat-label">HITS</span><strong id="live-hits">—</strong></div>
+                <div class="live-stat"><span class="live-stat-label">ACCURACY</span><strong id="live-accuracy">—</strong></div>
+                <div class="live-stat"><span class="live-stat-label" id="live-third-label">AVG. REACTION</span><strong id="live-third">—</strong></div>
+                <div class="live-stat live-stat-score"><span class="live-stat-label" id="live-score-label">SCORE</span><strong id="live-score">—</strong></div>
+              </div>
+              <p id="session-announcement" class="sr-only" aria-live="polite"></p>
+
+              <section id="result-panel" class="result-panel" aria-labelledby="result-title" hidden>
+                <div class="result-heading"><div><p class="eyebrow">SESSION COMPLETE</p><h3 id="result-title" tabindex="-1">Your run, at a glance</h3></div><span class="result-stamp" aria-hidden="true">R/OS</span></div>
+                <div class="result-grid">
+                  <div><span>HITS</span><strong id="result-hits">0</strong></div>
+                  <div><span>ACCURACY</span><strong id="result-accuracy">0%</strong></div>
+                  <div><span>AVG. REACTION</span><strong id="result-reaction">—</strong></div>
+                  <div><span id="result-fourth-label">SESSION SCORE</span><strong id="result-fourth">0</strong></div>
+                </div>
+                <p id="result-note" class="result-note">Your score is saved privately on this device.</p>
+                <button id="again-button" class="button button-primary" type="button">Run it again <span aria-hidden="true">↗</span></button>
+              </section>
+            <p id="game-feedback" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-progress" class="view content-view" aria-labelledby="progress-title" hidden>
+          <div class="page-heading content-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> YOUR PRACTICE RECORD</p><h1 id="progress-title" tabindex="-1">Progress, <span>made visible.</span></h1><p class="page-lede">Your training history is private and stored on this device.</p></div><div class="heading-stat"><span class="heading-stat-value" id="progress-session-count">00</span><span class="heading-stat-label">TOTAL RUNS</span></div></div>
+          <div class="progress-summary">
+            <article class="summary-block"><span class="summary-index">01</span><span class="summary-label">TOTAL HITS</span><strong id="progress-total-hits">0</strong><span class="summary-detail">Across saved sessions</span></article>
+            <article class="summary-block"><span class="summary-index">02</span><span class="summary-label">BEST ACCURACY</span><strong id="progress-best-accuracy">—</strong><span class="summary-detail">Clicking drills</span></article>
+            <article class="summary-block"><span class="summary-index">03</span><span class="summary-label">TIME PRACTICED</span><strong id="progress-time">0 min</strong><span class="summary-detail">Active session time</span></article>
+          </div>
+          <section class="trend-panel" aria-labelledby="trend-title">
+            <div class="panel-heading"><div><p class="eyebrow">SESSION BY SESSION</p><h2 id="trend-title">Your recent trend</h2></div><span class="panel-count">LAST 10 / MODE</span></div>
+            <div id="trend-chart" class="trend-chart"></div>
+            <p id="trend-empty" class="trend-empty">Complete a drill to begin a per-mode trend. Scores from different drills are kept separate.</p>
+          </section>
+          <div class="progress-layout">
+            <section class="history-panel" aria-labelledby="history-title"><div class="panel-heading"><div><p class="eyebrow">RECENT ACTIVITY</p><h2 id="history-title">Last 10 sessions</h2></div><span class="panel-count" id="history-count">0 RECORDS</span></div><div id="history-list" class="history-list"></div><div id="history-empty" class="history-empty"><span class="empty-signal" aria-hidden="true"><i></i><i></i><i></i></span><strong>Your first run starts here.</strong><span>Complete a drill and your results will appear on this device.</span><button class="text-button" type="button" data-go-train>Start a session ↗</button></div></section>
+            <aside class="data-panel"><p class="eyebrow">YOUR DATA</p><h2>Keep it portable.</h2><p>Export a backup to move your practice history between browsers or devices. Imported backups are validated before they are saved.</p><button id="export-button" class="button button-secondary button-full" type="button">Export progress</button><input id="import-file" class="visually-hidden-input" type="file" accept="application/json,.json" aria-label="Choose a Range OS progress backup"><label class="button button-secondary button-full file-button" for="import-file">Import a backup</label><button id="clear-button" class="text-button destructive-button" type="button">Delete all saved progress</button><p id="data-status" class="data-status" aria-live="polite"></p><div class="privacy-note"><span aria-hidden="true">◈</span><span>No account. No analytics. No cloud sync. This browser’s storage can be cleared by your device.</span></div></aside>
+          </div>
+        </section>
+
+        <section id="view-about" class="view content-view" aria-labelledby="about-title" hidden>
+          <div class="page-heading content-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> THE RANGE OS APPROACH</p><h1 id="about-title" tabindex="-1">Train with <span>intention.</span></h1><p class="page-lede">A focused practice space designed to make the next useful rep easy to find.</p></div></div>
+          <div class="about-grid">
+            <article class="about-feature"><span class="feature-number">01</span><h2>One skill at a time.</h2><p>Flicking, switching, and tracking feel different. Each drill isolates one movement so the result is easier to understand.</p></article>
+            <article class="about-feature"><span class="feature-number">02</span><h2>Progress without pressure.</h2><p>See the measures behind each session. Your records stay on this device and there are no public rankings to chase.</p></article>
+            <article class="about-feature"><span class="feature-number">03</span><h2>Available in your browser.</h2><p>Range OS is a lightweight web app. Install it where supported and keep practicing when the connection drops.</p></article>
+          </div>
+          <div class="about-footnote"><span class="about-footnote-mark">✳</span><div><strong>A note about progress</strong><p>Aim training is practice, not a promise of performance in any specific game. Your personal scores are useful for comparing your own sessions under similar conditions.</p></div></div>
+        </section>
+      </main>
+
+      <footer class="site-footer"><span>RANGE OS <span class="footer-dot">·</span> PRACTICE, CLEARLY.</span><span>Free to use <span class="footer-dot">·</span> Private by default</span></footer>
+    </div>
+  </body>
+</html>

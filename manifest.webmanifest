@@ -1,0 +1,13 @@
+{
+  "name": "Range OS — Aim Training",
+  "short_name": "Range OS",
+  "description": "A free, focused aim trainer with private local progress.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101516",
+  "theme_color": "#101516",
+  "icons": [
+    { "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
