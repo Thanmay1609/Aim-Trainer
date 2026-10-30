@@ -46,3 +46,4 @@ The repository is configured to publish through GitHub Pages. Pushes to `main` p
 - `docs/product-and-architecture.md` describes the app structure and acceptance surface.
 - `docs/security-and-privacy.md` covers client-side data handling and deployment headers.
 - `docs/acceptance-checklist.md` tracks what has and has not been verified.
+- `docs/loop-engineering-prompt.md` gives a reusable Codex `/goal` brief and specialist review plan.
