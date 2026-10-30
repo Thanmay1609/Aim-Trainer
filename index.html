@@ -57,7 +57,7 @@
                 </button>
                 <button class="mode-card" type="button" data-mode="switch" aria-pressed="false">
                   <span class="mode-icon mode-icon-switch" aria-hidden="true"><i></i><i></i><i></i></span>
-                  <span class="mode-copy"><span class="mode-name">Target switching</span><span class="mode-description">Move through three targets.</span></span>
+                  <span class="mode-copy"><span class="mode-name">Target switching</span><span class="mode-description">Move through a target sequence.</span></span>
                   <span class="mode-arrow" aria-hidden="true">↗</span>
                 </button>
                 <button class="mode-card" type="button" data-mode="tracking" aria-pressed="false">
@@ -66,6 +66,25 @@
                   <span class="mode-arrow" aria-hidden="true">↗</span>
                 </button>
               </div>
+
+              <section class="scenario-library" aria-labelledby="scenario-library-title">
+                <div class="scenario-library-heading">
+                  <div><p class="eyebrow">CURATED TASKS</p><h3 id="scenario-library-title">Scenario library</h3></div>
+                  <span class="scenario-count" id="scenario-count">03 TASKS</span>
+                </div>
+                <label class="sr-only" for="scenario-search">Search scenarios in this drill</label>
+                <input id="scenario-search" class="scenario-search" type="search" placeholder="Find a scenario" autocomplete="off">
+                <div id="scenario-list" class="scenario-list" role="group" aria-label="Scenarios for the selected drill"></div>
+                <p id="scenario-empty" class="scenario-empty" hidden>No scenarios match that search.</p>
+              </section>
+
+              <section class="playlist-card" aria-labelledby="playlist-title">
+                <p class="eyebrow">CURATED ROUTINE</p>
+                <h3 id="playlist-title">Three-skill warm-up</h3>
+                <p>Precision → switching → tracking</p>
+                <div class="playlist-meta"><span>3 TASKS</span><span>90 SEC PRACTICE</span></div>
+                <button id="start-playlist" class="button button-secondary button-full" type="button">Start warm-up <span aria-hidden="true">↗</span></button>
+              </section>
 
               <div class="rail-divider"></div>
               <div class="rail-heading compact">
@@ -96,7 +115,7 @@
                   <span class="live-indicator" aria-hidden="true"></span>
                   <div><p class="eyebrow" id="mode-kicker">FLICK / PRECISION</p><h2 id="mode-title">Single target</h2></div>
                 </div>
-                <div class="range-toolbar-right"><span class="input-hint" id="input-hint">MOUSE READY</span><span class="key-hint"><kbd>Esc</kbd> pause</span></div>
+                <div class="range-toolbar-right"><span class="current-best" id="current-best">LOCAL PB —</span><span class="input-hint" id="input-hint">MOUSE READY</span><span class="key-hint"><kbd>Esc</kbd> pause</span></div>
               </div>
 
               <p class="range-instructions" id="mode-instructions">Click the target as accurately as you can. Keyboard: focus the arena, move with arrow keys, and press Space to score.</p>
@@ -145,7 +164,7 @@
                   <div><span id="result-fourth-label">SESSION SCORE</span><strong id="result-fourth">0</strong></div>
                 </div>
                 <p id="result-note" class="result-note">Your score is saved privately on this device.</p>
-                <button id="again-button" class="button button-primary" type="button">Run it again <span aria-hidden="true">↗</span></button>
+                <div class="result-actions"><button id="again-button" class="button button-primary" type="button">Run it again <span aria-hidden="true">↗</span></button><button id="stop-playlist" class="text-button" type="button" hidden>Stop playlist</button></div>
               </section>
             <p id="game-feedback" class="sr-only" aria-live="polite" aria-atomic="true"></p>
             </section>
@@ -160,9 +179,10 @@
             <article class="summary-block"><span class="summary-index">03</span><span class="summary-label">TIME PRACTICED</span><strong id="progress-time">0 min</strong><span class="summary-detail">Active session time</span></article>
           </div>
           <section class="trend-panel" aria-labelledby="trend-title">
-            <div class="panel-heading"><div><p class="eyebrow">SESSION BY SESSION</p><h2 id="trend-title">Your recent trend</h2></div><span class="panel-count">LAST 10 / MODE</span></div>
+            <div class="panel-heading"><div><p class="eyebrow">SCENARIO BY SCENARIO</p><h2 id="trend-title">Your recent trend</h2></div><span class="panel-count">LAST 10 / TASK</span></div>
+            <p class="trend-note">Charts use each scenario’s preset duration and target size. Custom runs stay in activity history.</p>
             <div id="trend-chart" class="trend-chart"></div>
-            <p id="trend-empty" class="trend-empty">Complete a drill to begin a per-mode trend. Scores from different drills are kept separate.</p>
+            <p id="trend-empty" class="trend-empty">Complete a scenario at its preset settings to see a focused trend. Custom runs remain in your history.</p>
           </section>
           <div class="progress-layout">
             <section class="history-panel" aria-labelledby="history-title"><div class="panel-heading"><div><p class="eyebrow">RECENT ACTIVITY</p><h2 id="history-title">Last 10 sessions</h2></div><span class="panel-count" id="history-count">0 RECORDS</span></div><div id="history-list" class="history-list"></div><div id="history-empty" class="history-empty"><span class="empty-signal" aria-hidden="true"><i></i><i></i><i></i></span><strong>Your first run starts here.</strong><span>Complete a drill and your results will appear on this device.</span><button class="text-button" type="button" data-go-train>Start a session ↗</button></div></section>

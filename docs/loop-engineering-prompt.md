@@ -14,9 +14,9 @@ Codex Goals are available in Codex builds that support the feature (official gui
 
 ## Project brief to keep in the working context
 
-**Product:** Range OS is a browser-first aim practice site. Its first release has three distinct Canvas 2D drills—flick/precision, target switching, and tracking—with mouse, touch, and keyboard input. It records hits, misses, accuracy, reaction time, and time-on-target as applicable. People can practice from the public site without installing a client or creating an account.
+**Product:** Range OS is a browser-first aim practice site. It has nine original Canvas 2D scenarios across flick/precision, target switching, and tracking, with mouse, touch, and keyboard input. It records hits, misses, accuracy, reaction time, and time-on-target as applicable. Scenario cards show local personal bests, and Progress charts compare results by scenario. People can practice from the public site without installing a client or creating an account.
 
-**Progress and privacy:** Results stay in browser storage. People can inspect per-mode trends, export/import a validated backup, or delete local records. Hosting the site worldwide does not sync personal progress between devices. Do not add accounts, analytics, third-party scripts, or cloud collection without an explicit product and privacy decision.
+**Progress and privacy:** Results stay in browser storage. People can inspect per-scenario trends, export/import a validated backup, or delete local records. Hosting the site worldwide does not sync personal progress between devices. Do not add accounts, analytics, third-party scripts, or cloud collection without an explicit product and privacy decision.
 
 **Research:** `docs/market-audit.md` compares five representative products from publicly available product and storefront material. Treat it as a bounded snapshot, not an exhaustive internet-wide audit or hands-on usability study. Add sources, access dates, concrete observations, user impact, and confidence to future audit entries. Turn only evidence-supported gaps into product work.
 
@@ -29,7 +29,7 @@ Build on the existing visual system instead of inventing a new one every iterati
 - Graphite range: `#101516` background and `#182021` panels.
 - Warm near-white copy with muted gray-green support text.
 - Lime `#d3ff62` for active actions and key results; cyan `#86d8dc` for structure and target detail.
-- A clear practice-console hierarchy: compact header, mode choice, large calm arena, short session controls, legible results, and progress charts.
+- A clear practice-console hierarchy: compact header, skill categories, searchable scenario cards, large calm arena, short session controls, legible results, and per-scenario progress charts.
 - Use original Canvas/CSS geometry and SVG assets. Avoid copying competitor artwork, names, sounds, or distinctive layouts.
 - Keep motion purposeful, targets distinguishable without color alone, and small-screen controls readable and thumb-friendly.
 
@@ -37,16 +37,17 @@ Build on the existing visual system instead of inventing a new one every iterati
 ┌────────────────────────── RANGE OS ──────────────────────────┐
 │ Train       Progress       About          Saved on this device│
 ├─────────────────────┬────────────────────────────────────────┤
-│ CHOOSE A DRILL      │  ACTIVE MODE       MOUSE / TOUCH / KEYS│
+│ CHOOSE A SKILL      │  ACTIVE TASK       MOUSE / TOUCH / KEYS│
 │ ○ Flick / precision │ ┌────────────────────────────────────┐ │
 │ ○ Target switching │ │                                    │ │
 │ ○ Tracking         │ │       CANVAS PRACTICE RANGE         │ │
-│                    │ │        target + aim feedback        │ │
-│ 30 / 60 / 90 sec   │ └────────────────────────────────────┘ │
-│ Target size        │   timer       pause / resume      end   │
-│                    │   hits   accuracy   reaction   misses  │
+│ FIND A SCENARIO     │ │        target + aim feedback        │ │
+│ [task · local PB]   │ └────────────────────────────────────┘ │
+│ [task · local PB]   │   timer       pause / resume      end   │
+│ [3-skill warm-up]   │   hits   accuracy   reaction   misses  │
+│ 30 / 60 / 90 sec   │   personal best · session results      │
 └─────────────────────┴────────────────────────────────────────┘
-Progress view: summary → separate trend for each drill → recent sessions → data export/delete
+Progress view: summary → separate trend for each scenario → recent sessions → data export/delete
 ```
 
 ## Specialist review briefs
@@ -62,7 +63,7 @@ The lead Codex agent owns integration, tests, acceptance status, commit quality,
 
 ## Completion checklist
 
-- Three modes remain playable with mouse, touch, and keyboard; scoring stays mode-specific and honest.
+- Nine scenarios across three modes remain playable with mouse, touch, and keyboard; scoring stays task-specific and honest.
 - Timer, pause, resume, early finish, results, progress, backup import/export, and deletion all work.
 - Layout and controls remain usable from 320 px through desktop widths; reduced motion and keyboard-only use remain supported.
 - New input and data paths receive focused tests; run the relevant existing checks and record their actual output.

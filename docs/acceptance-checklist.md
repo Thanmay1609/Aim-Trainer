@@ -3,6 +3,10 @@
 ## Product
 
 - [x] Three training modes are available.
+- [x] Nine original scenario presets cover precision, switching, and tracking; scenario search, local personal bests, and per-scenario trends are included.
+- [x] Switching has three- and six-point layouts; tracking has sweep and figure-eight paths.
+- [x] Three-skill warm-up advances through one preset from each category and can be stopped between tasks.
+- [x] Saved sessions retain scenario and target-size metadata; legacy backups receive safe defaults.
 - [x] Sessions support 30, 60, and 90 seconds and three target sizes.
 - [x] Session flow has countdown, pause, resume, early end, and results.
 - [x] Progress is local with export, validated import, and deletion controls.
@@ -13,7 +17,7 @@
 
 ## Verification performed
 
-- [x] Core, storage, and static-shell tests passed earlier in implementation (12 tests). Final app module syntax checks also passed after the accessibility and trend-chart changes; the full test suite was not rerun after those last UI updates.
+- [x] Core, storage, and static-shell tests passed earlier in implementation (12 tests). Node syntax checks passed after the scenario-library changes; the full test suite was not rerun after these changes.
 - [ ] Local HTTP launch and browser interaction review. The Python server started, but this sandbox denied local socket access and the Windows browser helper stopped before navigating to localhost.
 - [ ] Mouse / touch / keyboard manual matrix (requires interactive browser/device checks).
 - [ ] Offline reload and service-worker update behavior (requires browser with service-worker support).

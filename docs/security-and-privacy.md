@@ -7,7 +7,7 @@ The app has no account, application API, analytics, or third-party requests. A h
 ## Import and export
 
 - Exports contain only session results and a schema version; they contain no account identifiers or secrets.
-- Imports are capped at 1 MB and 2,000 sessions. Each record is validated for a known mode, valid date, supported duration and input type, integer counters, consistent hit/miss totals, and bounded metrics.
+- Imports are capped at 1 MB and 2,000 sessions. Each record is validated for a known mode and scenario, valid date, supported duration and target size, supported input type, integer counters, consistent hit/miss totals, and bounded metrics. Older records without scenario or target-size fields are assigned safe defaults during sanitization.
 - Unknown fields are discarded during sanitization. Imported strings are rendered with `textContent`, never inserted as HTML.
 - Failed or unavailable browser storage is reported to the user rather than presented as a successful save.
 

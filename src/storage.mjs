@@ -1,3 +1,5 @@
+import { DEFAULT_SCENARIO_BY_MODE, SCENARIO_BY_ID } from "./core.mjs";
+
 export const STORAGE_KEY = "range-os.progress.v1";
 export const STORAGE_SCHEMA = 1;
 export const MAX_SESSIONS = 2000;
@@ -6,13 +8,16 @@ export const MAX_IMPORT_BYTES = 1_000_000;
 const VALID_MODES = new Set(["flick", "switch", "tracking"]);
 const VALID_INPUTS = new Set(["mouse", "touch", "pen", "keyboard", "mixed", "unknown"]);
 const VALID_DURATIONS = new Set([30, 60, 90]);
+const VALID_TARGET_SIZES = new Set(["large", "medium", "small"]);
 
 export function validateRecord(record) {
   if (!record || typeof record !== "object" || Array.isArray(record)) return false;
   if (typeof record.id !== "string" || record.id.length < 1 || record.id.length > 80) return false;
   if (!VALID_MODES.has(record.mode)) return false;
+  if (record.scenarioId !== undefined && (!SCENARIO_BY_ID[record.scenarioId] || SCENARIO_BY_ID[record.scenarioId].mode !== record.mode)) return false;
   if (typeof record.createdAt !== "string" || !Number.isFinite(Date.parse(record.createdAt))) return false;
   if (!VALID_DURATIONS.has(record.durationSeconds)) return false;
+  if (record.targetSize !== undefined && !VALID_TARGET_SIZES.has(record.targetSize)) return false;
   if (!Number.isInteger(record.elapsedSeconds) || record.elapsedSeconds < 0 || record.elapsedSeconds > record.durationSeconds) return false;
   if (!["hits", "misses", "clicks", "score"].every((key) => Number.isInteger(record[key]) && record[key] >= 0 && record[key] <= 100000)) return false;
   if (record.hits + record.misses !== record.clicks) return false;
@@ -31,7 +36,9 @@ export function sanitizeRecord(record) {
     id: record.id,
     createdAt: new Date(record.createdAt).toISOString(),
     mode: record.mode,
+    scenarioId: record.scenarioId || DEFAULT_SCENARIO_BY_MODE[record.mode],
     durationSeconds: record.durationSeconds,
+    targetSize: record.targetSize || "medium",
     elapsedSeconds: record.elapsedSeconds,
     hits: record.hits,
     misses: record.misses,

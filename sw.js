@@ -1,5 +1,5 @@
-const CACHE_NAME = "range-os-shell-v1";
-const OLD_CACHE_NAMES = ["range-os-shell-v0"];
+const CACHE_NAME = "range-os-shell-v2";
+const OLD_CACHE_NAMES = ["range-os-shell-v0", "range-os-shell-v1"];
 const APP_SHELL = [
   "./",
   "./index.html",

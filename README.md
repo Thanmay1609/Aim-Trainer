@@ -1,6 +1,6 @@
 # Range OS
 
-Range OS is a small, static aim-training web app. It runs without an account, backend, third-party scripts, remote fonts, or analytics. Training history is stored in this browser and can be exported as JSON.
+Range OS is a small, static aim-training web app with nine curated scenarios across three core skills. It runs without an account, backend, third-party scripts, remote fonts, or analytics. Training history is stored in this browser and can be exported as JSON.
 
 ## Run locally
 
@@ -21,14 +21,16 @@ The tests use Node’s built-in test runner; no package install is required.
 ## Training modes
 
 - **Flick / precision:** hit one static target at a time. Hits, misses, click accuracy, and reaction time are recorded.
-- **Target switching:** hit the highlighted target in a three-target sequence. Other targets are visible but do not count until active.
-- **Tracking:** follow a moving target. The app samples active time on target and reports track rate.
+- **Target switching:** hit highlighted targets in a three- or six-point sequence. Other targets are visible but do not count until active.
+- **Tracking:** follow a moving target on a smooth sweep or figure-eight path. The app samples active time on target and reports track rate.
+
+The scenario library includes three original presets for each skill. Search the current skill's list, choose a target size and duration, then start immediately. Scenario cards show a local personal best. The three-task warm-up chains one task from each skill. Progress charts keep preset-setting results separate by scenario; custom-size or custom-duration runs remain in recent history.
 
 Mouse and touch use Pointer Events. Keyboard players can focus the arena, move with the arrow keys, and press Space in clicking drills. Shift plus an arrow moves the keyboard crosshair farther. Escape pauses or resumes. The trainer does not request pointer lock.
 
 ## Progress and privacy
 
-Session history stays in local browser storage. Progress shows a separate recent trend for each drill, so unlike measures are not combined. History does not sync to other devices. Use Progress to export, import, or delete saved sessions. Browser storage may be cleared by private-browsing settings, device cleanup, or the user. Local scores are editable and are not suitable for authoritative leaderboards.
+Session history stays in local browser storage. Progress shows a separate recent trend for each scenario, so unlike tasks are not combined. History does not sync to other devices. Use Progress to export, import, or delete saved sessions. Browser storage may be cleared by private-browsing settings, device cleanup, or the user. Local scores are editable and are not suitable for authoritative leaderboards.
 
 The service worker caches only the static same-origin app shell. The app makes no analytics or external requests.
 

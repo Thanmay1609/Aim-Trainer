@@ -1,4 +1,4 @@
-import { MODE_DEFINITIONS, advanceSession, createSession, getResults, isInsideTarget, recordClick, recordPointerType } from "./core.mjs";
+import { DEFAULT_SCENARIO_BY_MODE, MODE_DEFINITIONS, SCENARIOS, SCENARIO_BY_ID, advanceSession, createSession, getResults, isInsideTarget, recordClick, recordPointerType } from "./core.mjs";
 import { clearSessions, importBackup, loadSessions, makeBackup, saveSession } from "./storage.mjs";
 
 const $ = (selector) => document.querySelector(selector);
@@ -7,8 +7,11 @@ const context = canvas.getContext("2d");
 const arenaFrame = $("#arena-frame");
 const state = {
   mode: "flick",
+  scenarioId: DEFAULT_SCENARIO_BY_MODE.flick,
   durationSeconds: 30,
   targetSize: "medium",
+  playlist: null,
+  playlistIndex: 0,
   status: "idle",
   session: null,
   frameId: 0,
@@ -31,7 +34,7 @@ const modeContent = {
     secondLine: "STATIC ACQUISITION"
   },
   switch: {
-    instructions: "Follow the sequence. Only the highlighted target counts. Keyboard: use arrow keys and Space.",
+    instructions: "Follow the sequence across each highlighted target. Keyboard: use arrow keys and Space.",
     secondLine: "SEQUENTIAL ACQUISITION"
   },
   tracking: {
@@ -87,16 +90,24 @@ function createTargets() {
   const { width, height } = getArenaSize();
   const radius = getRadius();
   if (state.mode === "switch") {
-    const spread = Math.min(0.28, (radius * 2.5) / width);
-    const ys = [0.35, 0.62, 0.43];
-    state.targets = [
-      { x: 0.27, y: ys[0], radius },
-      { x: 0.73, y: ys[1], radius },
-      { x: 0.5 + spread * 0.2, y: ys[2], radius }
-    ];
+    const count = SCENARIO_BY_ID[state.scenarioId].targetCount;
+    if (count === 3) {
+      const spread = Math.min(0.28, (radius * 2.5) / width);
+      state.targets = [
+        { x: 0.27, y: 0.35, radius },
+        { x: 0.73, y: 0.62, radius },
+        { x: 0.5 + spread * 0.2, y: 0.43, radius }
+      ];
+    } else {
+      state.targets = Array.from({ length: count }, (_, index) => ({
+        x: [0.2, 0.5, 0.8][index % 3],
+        y: index < 3 ? 0.34 : 0.68,
+        radius
+      }));
+    }
     state.currentTargetIndex = 0;
   } else if (state.mode === "tracking") {
-    state.targets = [{ x: 0.5, y: 0.5, radius: Math.max(radius, 24) }];
+    state.targets = [{ x: 0.5, y: 0.5, radius }];
     state.trail = [];
   } else {
     state.targets = [randomPoint(radius, width, height)];
@@ -106,10 +117,19 @@ function createTargets() {
 function trackingTarget() {
   const elapsed = state.session ? state.session.elapsedMs : 0;
   const speed = globalThis.matchMedia && globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0.00055 : 0.00105;
+  const phase = elapsed * speed;
+  const scenario = SCENARIO_BY_ID[state.scenarioId];
+  if (scenario.trackingPattern === "orbit") {
+    return {
+      x: 0.5 + 0.29 * Math.cos(phase),
+      y: 0.5 + 0.21 * Math.sin(phase * 2),
+      radius: getRadius()
+    };
+  }
   return {
-    x: 0.5 + 0.31 * Math.sin(elapsed * speed),
-    y: 0.5 + 0.2 * Math.sin(elapsed * speed * 0.73 + 1.15),
-    radius: Math.max(getRadius(), 24)
+    x: 0.5 + 0.31 * Math.sin(phase),
+    y: 0.5 + 0.2 * Math.sin(phase * 0.73 + 1.15),
+    radius: getRadius()
   };
 }
 
@@ -216,7 +236,7 @@ function updateTimer() {
   const active = state.status === "running" || state.status === "paused";
   const remaining = active && state.session ? Math.max(0, state.durationSeconds * 1000 - state.session.elapsedMs) : state.durationSeconds * 1000;
   const totalSeconds = Math.ceil(remaining / 1000);
-  $("#timer-value").textContent = "00:" + String(totalSeconds).padStart(2, "0");
+  $("#timer-value").textContent = String(Math.floor(totalSeconds / 60)).padStart(2, "0") + ":" + String(totalSeconds % 60).padStart(2, "0");
 }
 
 function setSessionState(label, type = "ready") {
@@ -252,8 +272,9 @@ function updateLiveStats() {
 
 function updateModeView() {
   const definition = MODE_DEFINITIONS[state.mode];
+  const scenario = SCENARIO_BY_ID[state.scenarioId];
   $("#mode-kicker").textContent = definition.label;
-  $("#mode-title").textContent = definition.title;
+  $("#mode-title").textContent = scenario.name;
   $("#mode-instructions").textContent = modeContent[state.mode].instructions;
   $("#arena-mode-label").textContent = modeContent[state.mode].secondLine;
   const tracking = state.mode === "tracking";
@@ -281,17 +302,132 @@ function updateModeView() {
 
 function setMode(mode) {
   if (state.status === "running" || state.status === "paused" || state.status === "countdown") return;
+  if (!Object.hasOwn(MODE_DEFINITIONS, mode) || mode === state.mode) return;
+  setScenario(DEFAULT_SCENARIO_BY_MODE[mode]);
+}
+
+function scenarioPersonalBest(scenarioId, durationSeconds, targetSize) {
+  const scenario = SCENARIO_BY_ID[scenarioId];
+  const matching = loadSessions().filter((record) => record.scenarioId === scenarioId && record.durationSeconds === durationSeconds && record.targetSize === targetSize);
+  if (!matching.length) return "—";
+  if (scenario.mode === "tracking") return Math.max(...matching.map((record) => record.onTargetPercent ?? 0)) + "% track rate";
+  return Math.max(...matching.map((record) => record.hits)) + " hits";
+}
+
+function renderScenarioList() {
+  const search = $("#scenario-search").value.trim().toLocaleLowerCase();
+  const matches = SCENARIOS.filter((scenario) => scenario.mode === state.mode && (scenario.name + " " + scenario.description + " " + scenario.difficulty).toLocaleLowerCase().includes(search));
+  const list = $("#scenario-list");
+  list.replaceChildren();
+  $("#scenario-count").textContent = String(matches.length).padStart(2, "0") + (matches.length === 1 ? " TASK" : " TASKS");
+  $("#scenario-empty").hidden = matches.length > 0;
+  for (const scenario of matches) {
+    const selected = scenario.id === state.scenarioId;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "scenario-card" + (selected ? " is-selected" : "");
+    button.dataset.scenario = scenario.id;
+    button.setAttribute("aria-pressed", String(selected));
+
+    const header = document.createElement("span");
+    header.className = "scenario-card-header";
+    const name = document.createElement("span");
+    name.className = "scenario-name";
+    name.textContent = scenario.name;
+    const difficulty = document.createElement("span");
+    difficulty.className = "scenario-difficulty";
+    difficulty.textContent = scenario.difficulty;
+    header.append(name, difficulty);
+
+    const description = document.createElement("span");
+    description.className = "scenario-description";
+    description.textContent = scenario.description;
+
+    const meta = document.createElement("span");
+    meta.className = "scenario-meta";
+    const setting = document.createElement("span");
+    setting.textContent = scenario.durationSeconds + " SEC";
+    const size = document.createElement("span");
+    size.textContent = scenario.targetSize.toUpperCase() + " TARGET";
+    meta.append(setting, size);
+    if (scenario.mode === "switch") {
+      const count = document.createElement("span");
+      count.textContent = scenario.targetCount + " POINTS";
+      meta.append(count);
+    } else if (scenario.mode === "tracking") {
+      const path = document.createElement("span");
+      path.textContent = scenario.trackingPattern === "orbit" ? "FIGURE EIGHT" : "SWEEP";
+      meta.append(path);
+    }
+
+    const best = document.createElement("span");
+    best.className = "scenario-best";
+    const bestLabel = document.createElement("span");
+    bestLabel.textContent = "LOCAL PB";
+    const bestValue = document.createElement("strong");
+    bestValue.textContent = scenarioPersonalBest(scenario.id, scenario.durationSeconds, scenario.targetSize);
+    best.append(bestLabel, bestValue);
+    button.append(header, description, meta, best);
+    list.append(button);
+  }
+  $("#current-best").textContent = "LOCAL PB · " + scenarioPersonalBest(state.scenarioId, state.durationSeconds, state.targetSize);
+}
+
+function clearPlaylist() {
+  state.playlist = null;
+  state.playlistIndex = 0;
+  $("#stop-playlist").hidden = true;
+  $("#start-button").disabled = false;
+  $("#again-button").textContent = "Run it again";
+}
+
+function setScenario(scenarioId, returnFocus = false, preservePlaylist = false) {
+  if (state.status === "running" || state.status === "paused" || state.status === "countdown") return;
+  const scenario = SCENARIO_BY_ID[scenarioId];
+  if (!scenario) return;
+  if (!preservePlaylist) clearPlaylist();
   dismissResultForSetupChange();
-  state.mode = mode;
+  state.scenarioId = scenario.id;
+  state.mode = scenario.mode;
+  state.durationSeconds = scenario.durationSeconds;
+  state.targetSize = scenario.targetSize;
   state.lastKeyboardTrackingState = null;
   document.querySelectorAll("[data-mode]").forEach((button) => {
-    const selected = button.dataset.mode === mode;
+    const selected = button.dataset.mode === state.mode;
     button.classList.toggle("is-selected", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
+  document.querySelectorAll("[data-duration]").forEach((button) => button.setAttribute("aria-pressed", String(Number(button.dataset.duration) === state.durationSeconds)));
+  $("#target-size").value = state.targetSize;
   updateModeView();
+  renderScenarioList();
+  updateTimer();
   createTargets();
   drawArena();
+  if (returnFocus) $("#scenario-list [data-scenario='" + scenario.id + "']").focus({ preventScroll: true });
+}
+
+function startWarmupPlaylist() {
+  if (state.status === "running" || state.status === "paused" || state.status === "countdown") return;
+  state.playlist = ["steady-click", "three-point", "smooth-sweep"];
+  state.playlistIndex = 0;
+  setScenario(state.playlist[0], false, true);
+  startCountdown();
+}
+
+function continuePlaylist() {
+  if (state.playlist && state.playlistIndex < state.playlist.length - 1) {
+    state.playlistIndex += 1;
+    setScenario(state.playlist[state.playlistIndex], false, true);
+    startCountdown();
+    return;
+  }
+  startCountdown();
+}
+
+function stopPlaylist() {
+  clearPlaylist();
+  $("#result-note").textContent = "Warm-up stopped. Your completed scenarios remain saved on this device.";
 }
 
 function updatePointer(event) {
@@ -419,7 +555,9 @@ function handleArenaLeave(event) {
 }
 
 function setControlsDisabled(disabled) {
-  document.querySelectorAll("[data-mode], [data-duration]").forEach((button) => { button.disabled = disabled; });
+  document.querySelectorAll("[data-mode], [data-duration], [data-scenario]").forEach((button) => { button.disabled = disabled; });
+  $("#scenario-search").disabled = disabled;
+  $("#start-playlist").disabled = disabled;
   $("#target-size").disabled = disabled;
 }
 
@@ -452,7 +590,7 @@ function startCountdown() {
 }
 
 function beginSession() {
-  state.session = createSession({ mode: state.mode, durationSeconds: state.durationSeconds, targetSize: state.targetSize, id: makeId() });
+  state.session = createSession({ mode: state.mode, scenarioId: state.scenarioId, durationSeconds: state.durationSeconds, targetSize: state.targetSize, id: makeId() });
   state.sessionStartAt = new Date().toISOString();
   state.status = "running";
   state.pointer = null;
@@ -548,7 +686,9 @@ function finishSession(early) {
     id: state.session.id,
     createdAt: state.sessionStartAt,
     mode: state.mode,
+    scenarioId: state.session.scenarioId,
     durationSeconds: state.durationSeconds,
+    targetSize: state.targetSize,
     elapsedSeconds: Math.min(state.durationSeconds, results.elapsedSeconds),
     hits: results.hits,
     misses: results.misses,
@@ -570,7 +710,9 @@ function finishSession(early) {
 }
 
 function renderResults(results, saved, early) {
+  const scenario = SCENARIO_BY_ID[state.session.scenarioId];
   $("#result-panel").hidden = false;
+  $("#result-title").textContent = scenario.name + " — run summary";
   if (state.mode === "tracking") {
     $("#result-hits").textContent = (results.onTargetMs / 1000).toFixed(1) + "s";
     $("#result-accuracy").textContent = (results.onTargetPercent ?? 0) + "%";
@@ -590,7 +732,29 @@ function renderResults(results, saved, early) {
     resultColumns[2].textContent = "AVG. REACTION";
     resultColumns[3].textContent = "MISSES";
   }
-  $("#result-note").textContent = (early ? "Early finish. " : "") + (saved ? "Your result is saved privately on this device." : "This browser could not save local progress. Check its storage settings.");
+  $("#result-note").textContent = (early ? "Early finish. " : "") + (saved ? scenario.name + " saved privately on this device." : "This browser could not save local progress. Check its storage settings.");
+  if (state.playlist) {
+    const completed = state.playlistIndex + 1;
+    const nextScenario = SCENARIO_BY_ID[state.playlist[state.playlistIndex + 1]];
+    if (nextScenario) {
+      const saveStatus = saved ? "Result saved locally. " : "This result could not be saved. ";
+      $("#result-note").textContent = (early ? "Early finish. " : "") + completed + " of " + state.playlist.length + " warm-up tasks complete. " + saveStatus + "Next: " + nextScenario.name + ".";
+      $("#again-button").textContent = "Next scenario";
+      $("#stop-playlist").hidden = false;
+      $("#start-button").disabled = true;
+    } else {
+      $("#result-note").textContent = "Three-skill warm-up complete. " + (saved ? "Results are saved privately on this device." : "This browser could not save local progress.");
+      state.playlist = null;
+      state.playlistIndex = 0;
+      $("#again-button").textContent = "Run it again";
+      $("#stop-playlist").hidden = true;
+      $("#start-button").disabled = false;
+    }
+  } else {
+    $("#again-button").textContent = "Run it again";
+    $("#stop-playlist").hidden = true;
+    $("#start-button").disabled = false;
+  }
 }
 
 function formatDate(iso) {
@@ -607,7 +771,7 @@ function appendHistoryRow(record) {
   dateText.textContent = formatDate(record.createdAt);
   const modeText = document.createElement("span");
   modeText.className = "history-mode";
-  modeText.textContent = modeNames[record.mode];
+  modeText.textContent = (SCENARIO_BY_ID[record.scenarioId]?.name || modeNames[record.mode]) + " · " + record.durationSeconds + " SEC";
   date.append(dateText, modeText);
   row.append(date);
   const values = record.mode === "tracking"
@@ -643,6 +807,7 @@ function renderProgress() {
   history.replaceChildren();
   sessions.slice(0, 10).forEach(appendHistoryRow);
   renderTrends(sessions);
+  renderScenarioList();
   $("#history-empty").hidden = sessions.length > 0;
   history.hidden = sessions.length === 0;
 }
@@ -651,32 +816,26 @@ function renderTrends(sessions) {
   const chart = $("#trend-chart");
   chart.replaceChildren();
   let hasSessions = false;
-  const definitions = [
-    { mode: "flick", metric: "Accuracy (%)", value: (record) => record.accuracy ?? 0, maximum: 100 },
-    { mode: "switch", metric: "Accuracy (%)", value: (record) => record.accuracy ?? 0, maximum: 100 },
-    { mode: "tracking", metric: "On-target rate (%)", value: (record) => record.onTargetPercent ?? 0, maximum: 100 }
-  ];
+  const definitions = SCENARIOS.map((scenario) => ({
+    ...scenario,
+    metric: scenario.mode === "tracking" ? "On-target rate (%)" : "Accuracy (%)",
+    value: scenario.mode === "tracking" ? (record) => record.onTargetPercent ?? 0 : (record) => record.accuracy ?? 0,
+    maximum: 100
+  }));
   for (const definition of definitions) {
-    const recent = sessions.filter((record) => record.mode === definition.mode).slice(0, 10).reverse();
+    const recent = sessions.filter((record) => record.scenarioId === definition.id && record.durationSeconds === definition.durationSeconds && record.targetSize === definition.targetSize).slice(0, 10).reverse();
+    if (!recent.length) continue;
+    hasSessions = true;
     const modeSection = document.createElement("section");
     modeSection.className = "trend-mode";
     const info = document.createElement("div");
     info.className = "trend-info";
     const heading = document.createElement("h3");
-    heading.textContent = modeNames[definition.mode];
+    heading.textContent = definition.name;
     const metric = document.createElement("p");
-    metric.textContent = definition.metric + " · 0 to 100";
+    metric.textContent = definition.metric + " · " + definition.durationSeconds + " sec / " + definition.targetSize;
     info.append(heading, metric);
     modeSection.append(info);
-    if (!recent.length) {
-      const empty = document.createElement("p");
-      empty.className = "trend-mode-empty";
-      empty.textContent = "No sessions yet";
-      modeSection.append(empty);
-      chart.append(modeSection);
-      continue;
-    }
-    hasSessions = true;
     const observedMaximum = definition.maximum ?? Math.max(1, ...recent.map(definition.value));
     const summary = recent.map((record) => {
       const date = formatDate(record.createdAt);
@@ -685,7 +844,7 @@ function renderTrends(sessions) {
     const bars = document.createElement("div");
     bars.className = "trend-bars";
     bars.setAttribute("role", "img");
-    bars.setAttribute("aria-label", modeNames[definition.mode] + ", oldest to newest: " + summary);
+    bars.setAttribute("aria-label", definition.name + ", oldest to newest: " + summary);
     recent.forEach((record) => {
       const value = definition.value(record);
       const level = value <= 0 ? 0 : Math.min(10, Math.ceil((value / observedMaximum) * 10));
@@ -799,24 +958,35 @@ async function handleImport(event) {
 }
 
 document.querySelectorAll("[data-mode]").forEach((button) => button.addEventListener("click", () => setMode(button.dataset.mode)));
+$("#scenario-search").addEventListener("input", renderScenarioList);
+$("#scenario-list").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-scenario]");
+  if (button) setScenario(button.dataset.scenario, true);
+});
+$("#start-playlist").addEventListener("click", startWarmupPlaylist);
+$("#stop-playlist").addEventListener("click", stopPlaylist);
 document.querySelectorAll("[data-duration]").forEach((button) => button.addEventListener("click", () => {
   if (state.status === "running" || state.status === "paused" || state.status === "countdown") return;
+  clearPlaylist();
   state.durationSeconds = Number(button.dataset.duration);
   dismissResultForSetupChange();
   document.querySelectorAll("[data-duration]").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
   updateTimer();
+  renderScenarioList();
 }));
 $("#target-size").addEventListener("change", (event) => {
+  clearPlaylist();
   state.targetSize = event.target.value;
   dismissResultForSetupChange();
   if (state.status === "idle" || state.status === "results") createTargets();
+  renderScenarioList();
   drawArena();
 });
 $("#start-button").addEventListener("click", () => {
   if (state.status === "paused") resumeSession();
-  else if (state.status === "idle" || state.status === "results") startCountdown();
+  else if (state.status === "idle" || state.status === "results") continuePlaylist();
 });
-$("#again-button").addEventListener("click", startCountdown);
+$("#again-button").addEventListener("click", continuePlaylist);
 $("#pause-button").addEventListener("click", () => state.status === "paused" ? resumeSession() : pauseSession());
 $("#end-button").addEventListener("click", () => finishSession(true));
 $("#arena").addEventListener("pointerdown", handleArenaDown);
@@ -848,6 +1018,7 @@ window.addEventListener("resize", resizeCanvas);
 if ("ResizeObserver" in window) new ResizeObserver(resizeCanvas).observe(arenaFrame);
 updateModeView();
 updateTimer();
+renderScenarioList();
 renderProgress();
 createTargets();
 resizeCanvas();
